@@ -1,0 +1,22 @@
+# This file may be used to create a conda environment using:
+# $ conda env create -f <this file>
+
+name: spotpy-gprmax
+dependencies:
+- python>=3.4
+- colorama
+- cython
+- h5py
+- jupyter
+- matplotlib
+- numpy=1.13.*
+- pandas
+- psutil
+- scipy
+
+- pip:
+  - mpi4py
+  - pycuda
+  - spotpy
+  - terminaltables
+  - tqdm
