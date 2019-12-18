@@ -1,21 +1,22 @@
 #!/usr/bin/env python
 
-import numpy as np
-# import matplotlib.pyplot as plt
 import spotpy
 
-from setups.cylinder_Bscan_2D_gprMax import spotpy_setup
+from setups.cylinder_Bscan_2D_gprMax import Setup
 
 results = []
 rep = 10
 
-sampler=spotpy.algorithms.sceua(spotpy_setup(), dbname='cylinder_Bscan_2D', dbformat='csv', parallel='mpi')
+sampler = spotpy.algorithms.sceua(Setup(), dbname='cylinder_Bscan_2D', dbformat='csv', parallel='mpi')
 sampler.sample(rep, ngs=2)
 results.append(sampler.getdata())
 
 ################################
 # Loading and plotting results #
 ################################
+
+# import numpy as np
+# import matplotlib.pyplot as plt
 
 # def find_min_max(spotpy_setup):
 #     randompar=spotpy_setup.parameters()['random']

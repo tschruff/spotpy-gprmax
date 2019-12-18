@@ -1,0 +1,17 @@
+# Python virtual environment
+venv/
+
+# Exclude generated input and output files
+*.in
+*.out
+*.csv
+
+# Include observation input and output
+!cylinder_Bscan_2D_obs.in
+!cylinder_Bscan_2D_obs_merged.out
+
+# log files
+log_*.txt
+
+# IDE files
+.idea/
