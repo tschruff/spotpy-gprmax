@@ -21,14 +21,11 @@
 #SBATCH --nodes=1
 
 # [OPTIONAL] Number of MPI tasks per node.
-#SBATCH --ntasks-per-node=4
+###SBATCH --ntasks-per-node=4
 
 # [REQUIRED] Number of total MPI tasks: ntasks = nodes * ntasks-per-node
 # NOTE: ntasks must be at least (NUM_SPOTPY_WORKERS * 2) + 1 (see run.py for details)
 #SBATCH --ntasks=11
-
-# [REQUIRED] The number of SPOTPY worker processes.
-NUM_SPOTPY_WORKERS=5
 
 # Number of cores per MPI task (OpenMP); minimise when using GPU mode
 # NOTE: JURECA has 2 cpus per node with 12 physical and 24 logical (hyperthreading) cores per cpu
@@ -44,6 +41,8 @@ NUM_SPOTPY_WORKERS=5
 # [REQUIRED] Compute project
 #SBATCH --account=slts
 
+# [REQUIRED] The number of SPOTPY worker tasks.
+NUM_SPOTPY_WORKERS=5
 
 # ======================================================= #
 #                        JOB SCRIPT                       #

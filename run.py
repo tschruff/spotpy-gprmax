@@ -15,7 +15,13 @@ import argparse
 
 try:
     import pycuda.driver as drv
-    drv.init()
+    from pycuda.driver import RuntimeError as CUDAError
+    
+    try:
+        drv.init()  # might raise CUDAError if no CUDA devices where found
+    except CUDAError as e:
+        raise ImportError(str(e))
+
     GPU_COUNT = drv.Device.count()
     HAS_CUDA = True
 
@@ -306,13 +312,17 @@ def main(args=None):
     if args.log_env and rank == 0:
         logger.info('Environment:, {}'.format(os.environ))
 
-    logger.info(f'Running spotpy-gprmax on {host} with {size} processes')
+    num_workers = args.num_spotpy_workers
+
+    if rank == 0:
+        logger.info(f'Running spotpy-gprmax on {host} with {size} processes and {num_workers} spotpy workers')
+        logger.info(f'CUDA available: {HAS_CUDA}')
+        logger.info(f'Number of CUDA devices: {GPU_COUNT}')
 
     # ==================================
     # SETUP MPI COMMUNICATORS
     # ==================================
 
-    num_workers = args.num_spotpy_workers
     required_size = 2 * num_workers + 1
     if size < required_size:
         logger.error(f'Not enough processes allocated! At least {required_size} '
@@ -325,7 +335,9 @@ def main(args=None):
     elif num_workers == 1:
         color = 1  # gprmax worker group
     else:
-        color = (size - (num_workers + 1)) % num_workers
+        color = (rank - 1) % (size - (num_workers + 1)) + 1
+    
+    logger.debug(f'Color on rank {rank}: {color}')
 
     colors = np.array(comm.allgather(color))
     if rank == 0:

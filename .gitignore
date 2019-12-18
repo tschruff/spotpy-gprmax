@@ -12,6 +12,8 @@ venv/
 
 # log files
 log_*.txt
+*_out.txt
+*_err.txt
 
 # IDE files
 .idea/
