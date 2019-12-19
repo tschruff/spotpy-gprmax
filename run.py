@@ -44,6 +44,38 @@ class Setup(object):
 
     def __init__(self, gpr, ntraces, ncomplex, datadir, datafile, geometry_only=False, geometry_fixed=False,
                  write_processed=False, delete_gpr_output=True, namespace=None, gpus=None, gpu_fallback='cpu'):
+        """
+        Parameters
+        ----------
+        gpr: MPIExecutor or None
+            The executor instance used to issue gprMax model build runs.
+        ntraces: int
+            The number of traces (A-scans) to run per model.
+        ncomplex: int
+            The spotpy worker ID. Used to create worker specific gprMax input files.
+        datadir: str
+            The folder that contains the input files. Output files will also be stored here.
+        datafile: str
+            The name of input file.
+        geometry_only: bool
+            A gprMax parameter. If True, only geometry files will be created and no actual model runs.
+        geometry_fixed: bool
+            A gprMax parameter. If True, geometry data will be re-used in successive runs and not re-calculated.
+        write_processed: bool
+            A gprMax parameter. If True, preprocessed input files (Python code blocks) will be saved.
+        delete_gpr_output: bool
+            If True (default), intermediate gprMax output files will be deleted.
+        namespace: dict or None
+            A user defined variable dict for gprMax input file preprocessing.
+        gpus: list or None
+            A list of GPU device IDs to be used by this Setup instance. If None (default), no GPUs will be used.
+        gpu_fallback: str
+            The GPU fallback strategy ('cpu' or 'gpu') in case not enough GPU devices are available, i.e. the number of available
+            GPU devices is smaller than the number of worker tasks. This parameter is only used if ``gpus`` is not
+            None. If ``gpu_fallback`` is 'cpu', insufficient GPU devices will be filled up with CPUs, i.e. those workers
+            will use OpenMP to increase node level performance. If ``gpu_fallback`` is 'gpu', GPU devices will be assigned
+            to multiple worker tasks, and some workers may have to share a single GPU device.
+        """
 
         if gpus is not None:
             assert HAS_CUDA and GPU_COUNT
@@ -256,7 +288,7 @@ class Setup(object):
 
     def objectivefunction(self, simulation, evaluation, params):
         assert self.gpr is None, 'objectivefunction must not be called on a spotpy worker'
-        # FIXME: why does this fail?
+        # TODO: why does this fail?
         # ls, le = len(simulation), len(evaluation)
         # assert ls == le, f'len(simulation) = {ls}, len(evaluation) = {le}'
         return -spotpy.objectivefunctions.rmse(evaluation, simulation)
@@ -395,9 +427,16 @@ def main(args=None):
                 # no need for GPU support on spotpy master
                 gpus = None
             elif is_gpr_master:
-                # node_id = os.environ.get('SLURM_NODEID')
-                # NOTE: CUDA_VISIBLE_DEVICES returns only GPUs on the LOCAL node
-                # gpus = tuple(np.fromstring(os.environ.get('CUDA_VISIBLE_DEVICES'), dtype=int, sep=','))
+                # TODO: Implement GPU mode.
+                # This is quite tricky, because 
+                #   os.environ.get('CUDA_VISIBLE_DEVICES')
+                # will only return the allocated CUDA devices on the local node.
+                # That means that simply doing
+                #   local_gpus = tuple(np.fromstring(os.environ.get('CUDA_VISIBLE_DEVICES'), dtype=int, sep=','))
+                #   gpus = np.split(local_gpus, num_workers)
+                # or something similar will not work.
+                # Proposed solution:
+                # Just pass local_gpus to the Setup and let the gpu_fallback strategy figure out the rest.
                 logger.warning('GPU support not yet implemented. Falling back to CPU mode.')
                 gpus = None
             else:
