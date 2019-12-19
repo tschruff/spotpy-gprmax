@@ -92,7 +92,8 @@ TODO
   Adjust SPOTPY source in `Getting the code`_ once it is accepted.
 - gprMax pull request #233 still pending (https://github.com/gprMax/gprMax/pull/233).
   Adjust gprMax source in `Getting the code`_ once it is accepted.
-- GPU mode not implemented in ``run.py``
+- CPU mode fails due to unresolved gprMax errors (see ``* _err.txt`` and ``log_*.txt`` files)
+- GPU mode not implemented in ``run.py``. See ``run.py`` for details.
 
 
 Documentation
